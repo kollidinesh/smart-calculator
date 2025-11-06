@@ -1,0 +1,102 @@
+package com.dq.tool;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Scanner;
+import java.util.Set;
+
+public class NameValidator {
+
+    private static final int sequence = 3;
+
+    private static final Set<String> COMMON_NAMES = new HashSet<>(Arrays.asList(
+        "TEST", "TESTING", "DEMO", "SAMPLE", "EXAMPLE", "DUMMY", "PLACEHOLDER",
+        "TEMP", "TEMPORARY", "UNKNOWN", "NA", "N/A", "NONE", "NOTAVAILABLE",
+        "ADMIN", "USER", "USERNAME", "DEFAULT", "SYSTEM"
+    ));
+
+    private static boolean isContinuousSequence(String name) {
+        String nameUpper = name.toUpperCase();
+
+        for (int i = 0; i <= nameUpper.length() - sequence; i++) {
+            char firstChar = nameUpper.charAt(i);
+            boolean consecutive = true;
+            for (int j = 1; j < sequence; j++) {
+                if (nameUpper.charAt(i + j) != (char)(firstChar + j)) {
+                    consecutive = false;
+                    break;
+                }
+            }
+            if (consecutive) {
+                return true;
+            }
+        }
+
+        String[] keyboardRows = {"QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"};
+        for (String row : keyboardRows) {
+            for (int i = 0; i <= row.length() - sequence; i++) {
+                String sequences = row.substring(i, i + sequence);
+                if (nameUpper.contains(sequences)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean containsSpecialCharacters(String name) {
+        return !name.matches("[a-zA-Z0-9 ]+");
+    }
+
+    public static boolean validateName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            System.out.println("Validation Failure Name should not Null or Empty");
+            return false;
+        }
+
+        String trimmedName = name.trim();
+        int length = trimmedName.length();
+
+        if (length < 2) {
+            System.out.println("Validation Failure -- Minimum Length of name should not less than 2");
+            return false;
+        }
+
+        if (length > 255) {
+            System.out.println("Validation Failure -- Maximum Length of the name should not be greater than 255");
+            return false;
+        }
+
+        if (containsSpecialCharacters(trimmedName)) {
+            System.out.println("Validation Failure -- Special Characters Not Allowed");
+            return false;
+        }
+
+        if (COMMON_NAMES.contains(trimmedName.toUpperCase())) {
+            System.out.println("Validation Failure -- Common names are not allowed");
+            return false;
+        }
+
+        if (isContinuousSequence(trimmedName)) {
+            System.out.println("Validation Failure -- Sequential characters not allowed");
+            return false;
+        }
+
+        return true;
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter a name to validate: ");
+        String inputName = scanner.nextLine();
+
+        boolean isValid = validateName(inputName);
+        if (isValid) {
+            System.out.println("Validation Passed: Name is valid.");
+        } else {
+            System.out.println("Validation Failed.");
+        }
+
+        scanner.close();
+    }
+}
